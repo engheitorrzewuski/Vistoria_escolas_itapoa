@@ -1,0 +1,16 @@
+{
+  "name": "Vistoria Escolar Itapoá",
+  "short_name": "Vistoria",
+  "description": "Instrumento de Verificação em Campo",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#003566",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

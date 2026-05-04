@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#003566">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Vistoria Escolar — Itapoá</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:#1a1a1a;background:#f0f2f5;-webkit-tap-highlight-color:transparent}
+
+/* HEADER */
+.hdr{background:#003566;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.hdr-logo{width:40px;height:40px;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:8px;color:#003566;text-align:center;line-height:1.2;flex-shrink:0}
+.hdr-title{flex:1}
+.hdr-title h1{font-size:14px;font-weight:700;line-height:1.2}
+.hdr-title p{font-size:10px;color:rgba(255,255,255,.65);margin-top:2px}
+.hdr-actions{display:flex;gap:6px;flex-shrink:0}
+.hdr-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.hdr-btn:active{background:rgba(255,255,255,.25)}
+
+/* PROGRESS */
+.prog-bar{background:#002a52;padding:8px 16px;display:flex;align-items:center;gap:10px}
+.prog-track{flex:1;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:#f4a261;border-radius:3px;transition:width .3s}
+.prog-txt{font-size:11px;color:rgba(255,255,255,.7);white-space:nowrap}
+
+/* TABS */
+.tabs-wrap{background:#002a52;overflow-x:auto;scrollbar-width:none}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tabs{display:flex;min-width:max-content;padding:0 8px}
+.tab{background:none;border:none;color:rgba(255,255,255,.55);padding:10px 12px;font-size:11.5px;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;font-weight:600;flex-shrink:0}
+.tab.active{color:#fff;border-bottom-color:#f4a261}
+
+/* SECTIONS */
+.sec{display:none;padding:14px 14px 80px}
+.sec.active{display:block}
+.sec-title{font-size:14px;font-weight:700;color:#003566;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #003566}
+
+/* IDENT */
+.ident-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ifield label{display:block;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.ifield input,.ifield textarea{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;color:#1a1a1a;background:#fff;outline:none;font-family:inherit}
+.ifield input:focus,.ifield textarea:focus{border-color:#003566}
+.ifield.full{grid-column:1/-1}
+
+/* INFRA */
+.infra-item{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.infra-lbl{font-size:13px;font-weight:500;color:#222;flex:1}
+
+/* ENTREVISTA */
+.etable{width:100%;border-collapse:collapse}
+.etable th{background:#eef2f9;color:#003566;font-size:11px;font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid #d8e0f0}
+.etable td{padding:8px 10px;border-bottom:1px solid #f2f2f2;font-size:12px;vertical-align:middle;background:#fff}
+.etable td:nth-child(2){width:100px}
+.loc-input{width:100%;border:none;border-bottom:1px solid #ddd;font-size:12px;padding:2px 0;color:#333;outline:none;background:transparent}
+
+/* SUBSYSTEM */
+.subsystem{background:#fff;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:12px;overflow:hidden}
+.sub-hdr{background:#eef2f9;padding:9px 13px;font-weight:700;font-size:12px;color:#003566;border-bottom:1px solid #d8e0f0}
+.item{padding:12px 13px}
+.item-q{font-weight:600;font-size:13px;margin-bottom:5px}
+.item-d{font-size:11.5px;color:#666;margin-bottom:8px;background:#fafafa;padding:5px 8px;border-left:3px solid #ccd;border-radius:0 3px 3px 0;line-height:1.5}
+
+/* RADIO CHIPS */
+.radio-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.rc{display:flex;align-items:center;gap:3px}
+.rc input[type=radio]{display:none}
+.rc label{cursor:pointer;padding:6px 12px;border:1.5px solid #ccc;border-radius:20px;font-size:12px;font-weight:600;color:#555;white-space:nowrap;user-select:none}
+.rc input:checked+label.ok{background:#d4edda;border-color:#28a745;color:#155724}
+.rc input:checked+label.nao{background:#f8d7da;border-color:#dc3545;color:#721c24}
+.rc input:checked+label.na{background:#e2e3e5;border-color:#888;color:#444}
+.rc input:checked+label.g1{background:#fff3cd;border-color:#e6ac00;color:#7a5800}
+.rc input:checked+label.g2{background:#ffe0b2;border-color:#e67e00;color:#6d3a00}
+.rc input:checked+label.g3{background:#f8d7da;border-color:#dc3545;color:#721c24}
+.rc label.g1,.rc label.g2,.rc label.g3{border-radius:5px;font-size:11px}
+.sep-v{width:1px;height:22px;background:#ddd;margin:0 2px}
+.glbl{font-size:10.5px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+
+/* PATHOLOGIES */
+.paths{margin-top:10px;padding-top:10px;border-top:1px dashed #e8e8e8}
+.paths-lbl{font-size:10.5px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.path-grid{display:flex;flex-wrap:wrap;gap:5px}
+.pcb{display:flex;align-items:center;gap:4px}
+.pcb input{accent-color:#003566;width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.pcb label{font-size:12px;color:#444;cursor:pointer}
+
+textarea.obs{width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:7px 9px;font-size:12px;color:#333;resize:vertical;min-height:38px;margin-top:8px;font-family:inherit}
+textarea.obs:focus{outline:none;border-color:#003566}
+
+/* FOTOS */
+.foto-wrap{margin-top:10px;padding-top:10px;border-top:1px dashed #e8e8e8}
+.btn-foto{background:#e8edf2;color:#003566;padding:7px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.btn-foto input{display:none}
+.galeria{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.galeria img{width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ccc;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+
+/* CB toggle */
+.cb-wrap{display:flex;align-items:center;gap:5px;font-size:12px;color:#444;cursor:pointer}
+.cb-wrap input{accent-color:#dc3545;width:15px;height:15px;cursor:pointer}
+
+/* BOTTOM BAR */
+.bot-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid #e0e0e0;padding:10px 14px;display:flex;gap:8px;justify-content:space-between;align-items:center;backdrop-filter:blur(6px);z-index:99}
+.bot-nav{display:flex;gap:6px}
+.btn{border:none;padding:9px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-prev{background:#e8edf2;color:#003566}
+.btn-next{background:#003566;color:#fff}
+.btn-pdf{background:#28a745;color:#fff}
+.btn-save{background:#f4a261;color:#fff}
+.btn-load{background:#6c757d;color:#fff}
+.btn:active{opacity:.8}
+
+/* TOAST */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* LOAD INPUT */
+#loadInput{display:none}
+
+@media print{
+  .hdr,.prog-bar,.tabs-wrap,.bot-bar,.toast,.btn-foto{display:none!important}
+  .sec{display:block!important;page-break-before:always;padding:0}
+  .sec:first-of-type{page-break-before:avoid}
+  body{background:#fff;font-size:12px}
+  .sub-hdr,.hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .galeria img{width:150px;height:150px;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">ITAPOÁ<br>SC</div>
+  <div class="hdr-title">
+    <h1>Instrumento de Verificação</h1>
+    <p>Prefeitura de Itapoá — Educação</p>
+  </div>
+  <div class="hdr-actions">
+    <button class="hdr-btn" onclick="loadJSON()">📂</button>
+    <button class="hdr-btn" onclick="saveJSON()">💾</button>
+    <button class="hdr-btn" onclick="window.print()">🖨️</button>
+  </div>
+</div>
+
+<div class="prog-bar">
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-txt" id="progTxt">0%</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="mainTabs"></div>
+</div>
+
+<div id="sections"></div>
+
+<div class="bot-bar">
+  <button class="btn btn-prev" id="btnPrev" onclick="navigate(-1)">← Anterior</button>
+  <button class="btn btn-next" id="btnNext" onclick="navigate(1)">Próximo →</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="loadInput" accept=".json" onchange="onFileLoad(event)">
+
+<script>
+// ===== DATA =====
+var pC=['Armaduras expostas','Baixo cobrimento','Corrosão de armadura','Trinca estrutural','Trinca por sobrecarga','Trinca transpassante','Trinca em estrutura','Fissuras pontuais','Fissuras generalizadas','Fissuras aleatórias','Carbonatação','Eflorescências','Deterioração do concreto','Segregação / ninho','Deformação excessiva','Esmagamento','Umidade / infiltração','Manchas de corrosão'];
+var pR=['Descolamento / desprendimento','Fissuras ou trincas','Umidade / bolor / eflorescência','Desgaste anormal','Junta deteriorada','Argamassa pulverulenta','Manchas diversas'];
+var pE=['Corrosão / oxidação','Deformação / empenamento','Ferragem danificada','Vedação deteriorada','Folga excessiva','Dificuldade de operação','Fratura no caixilho','Vidro trincado'];
+var pCob=['Telha quebrada / ausente','Calha entupida / vazamento','Estrutura danificada','Infiltração por junta / rufo','Corrosão metálica','Fixação inadequada'];
+var pH=['Vazamento visível','Entupimento','Pressão insuficiente','Odor / refluxo','Peça danificada','Caixa sem tampa','Estanqueidade comprometida'];
+var pEl=['Fiação exposta / danificada','Disjuntor inadequado','Quadro sem identificação','Aterramento deficiente','Tomada / interruptor danificado','Instalação fora de norma'];
+var pI=['Extintor vencido / ausente','Hidrante sem mangueira','Mangueira deteriorada','Saída obstruída','Iluminação emergência inop.','Sinalização ausente'];
+
+var SECTIONS=[
+  {id:'s_ident', label:'Identificação', type:'ident'},
+  {id:'s_infra', label:'Infraestrutura', type:'infra'},
+  {id:'s_entrev', label:'Entrevista', type:'entrev'},
+  {id:'s2', label:'1. Estrutural', type:'sys', items:[
+    {h:'1.1 Pilares',q:'Os pilares apresentam alguma anomalia?',d:'Verifique todos os pilares visíveis.',p:pC},
+    {h:'1.2 Vigas',q:'As vigas apresentam alguma anomalia?',d:'Inspecione vigas de concreto, metálicas ou mistas.',p:pC},
+    {h:'1.3 Lajes',q:'As lajes apresentam alguma anomalia?',d:'Inclui lajes maciças, nervuradas e pré-moldadas.',p:pC},
+    {h:'1.4 Consoles e Balanços',q:'Os consoles ou balanços apresentam anomalia?',d:'',p:pC},
+    {h:'1.5 Arquibancadas',q:'As arquibancadas apresentam alguma anomalia?',d:'',p:pC},
+    {h:'1.6 Juntas de Dilatação Estrutural',q:'As juntas de dilatação estrutural apresentam anomalia?',d:'Verifique vedação, deslocamentos e deterioração.',p:['Junta colmatada','Vedante deteriorado','Deslocamento diferencial','Infiltração pela junta']},
+    {h:'1.7 Fundações',q:'Há sinais visíveis de recalque ou anomalia?',d:'Trincas em paredes, desaprumo de pilares ou afundamento.',p:['Recalque diferencial','Trinca por recalque','Desaprumo visível','Afundamento']},
+    {h:'1.8 Reservatórios',q:'Os reservatórios apresentam anomalia?',d:'',p:['Trinca ou fissura','Infiltração externa','Tampa ausente','Sem limpeza periódica']},
+    {h:'1.9 Marquises',q:'As marquises apresentam alguma anomalia?',d:'Atenção especial — risco de desprendimento.',p:['Infiltração','Descolamento','Mancha / corrosão','Deformação visível','Fissura profunda']},
+  ]},
+  {id:'s3', label:'2. Impermeab.', type:'sys', items:[
+    {h:'2.1 Sanitários — Professores',q:'O sistema de impermeabilização apresenta falha?',d:'Manchas, umidade, bolhas ou descolamento de piso.',p:['Infiltração visível','Bolha / descolamento','Vazamento para andar inferior','Umidade em parede','Impermeabilização ausente']},
+    {h:'2.2 Sanitários — Alunos',q:'O sistema de impermeabilização apresenta falha?',d:'',p:['Infiltração visível','Bolha / descolamento','Vazamento para andar inferior','Umidade em parede','Impermeabilização ausente']},
+    {h:'2.3 Cozinha / Copa',q:'O sistema de impermeabilização apresenta falha?',d:'',p:['Infiltração visível','Bolha / descolamento','Vazamento para andar inferior','Umidade em parede','Impermeabilização ausente']},
+    {h:'2.4 Demais Áreas Molhadas',q:'Outras áreas molhadas apresentam falha?',d:'Lavanderia, vestiário, depósito úmido etc.',p:['Infiltração visível','Bolha / descolamento','Vazamento para andar inferior','Umidade em parede','Impermeabilização ausente']},
+  ]},
+  {id:'s4', label:'3. Vedação', type:'sys', items:[
+    {h:'3.1 Pisos Internos',q:'Os pisos internos apresentam anomalia?',d:'Cerâmica, porcelanato, cimentado, epóxi, vinílico etc.',p:pR},
+    {h:'3.2 Paredes Internas',q:'As paredes internas apresentam anomalia?',d:'',p:pR},
+    {h:'3.3 Fachadas',q:'O revestimento das fachadas apresenta anomalia?',d:'Atenção a revestimentos em altura.',p:pR},
+    {h:'3.4 Tetos e Forros',q:'Os tetos e forros apresentam anomalia?',d:'',p:[...pR,'Forro com flecha excessiva','Placa solta ou ausente']},
+    {h:'3.5 Alvenaria',q:'A alvenaria apresenta anomalia?',d:'',p:['Trinca no bloco','Eflorescência','Junta deteriorada','Bloco desalinhado','Umidade ascendente']},
+  ]},
+  {id:'s5', label:'4. Esquadrias', type:'sys', items:[
+    {h:'4.1 Gradis e Alambrados',q:'Os gradis e alambrados apresentam anomalia?',d:'',p:pE},
+    {h:'4.2 Guarda-Corpos e Corrimãos',q:'Guarda-corpos e corrimãos apresentam anomalia?',d:'Altura mínima: 92 cm (≤1 m de queda) / 1,10 m acima.',p:[...pE,'Altura insuficiente','Fixação deficiente']},
+    {h:'4.3 Portas Internas',q:'As portas internas apresentam anomalia?',d:'',p:pE},
+    {h:'4.4 Portões',q:'Os portões apresentam anomalia?',d:'',p:[...pE,'Motor / automação com defeito']},
+    {h:'4.5 Janelas',q:'As janelas apresentam anomalia?',d:'',p:pE},
+  ]},
+  {id:'s6', label:'5. Coberturas', type:'sys', items:[
+    {h:'5.1 Cobertura Principal',q:'A cobertura principal apresenta anomalia?',d:'Telhado, estrutura, calhas e rufos.',p:pCob},
+    {h:'5.2 Coberturas Secundárias',q:'Coberturas secundárias apresentam anomalia?',d:'Marquises, beirais.',p:pCob},
+  ]},
+  {id:'s7', label:'6. Hidrossanit.', type:'sys', items:[
+    {h:'6.1 Água Fria',q:'O sistema de água fria apresenta anomalia?',d:'Tubulações, registros, reservatórios.',p:pH},
+    {h:'6.2 Esgoto Sanitário',q:'O sistema de esgoto apresenta anomalia?',d:'Tubulações, caixas de inspeção, gordura.',p:pH},
+    {h:'6.3 Águas Pluviais',q:'O sistema de drenagem pluvial apresenta anomalia?',d:'Calhas, condutores, caixas de areia.',p:['Entupimento','Transbordamento','Condutor desconectado','Erosão por escoamento']},
+    {h:'6.4 Aparelhos Sanitários',q:'Aparelhos sanitários e metais apresentam anomalia?',d:'Vasos, pias, chuveiros, torneiras, válvulas.',p:['Peça quebrada / ausente','Vazamento','Torneira gotejando','Válvula com defeito','Peça solta']},
+  ]},
+  {id:'s8', label:'7. Elétrico', type:'sys', items:[
+    {h:'7.1 Entrada e Ramal',q:'A entrada de energia apresenta anomalia?',d:'Entrada aérea ou subterrânea, mufla e isoladores.',p:pEl},
+    {h:'7.2 Quadro Geral (QGD)',q:'O quadro geral de distribuição apresenta anomalia?',d:'Disjuntores, cabos, aterramento, identificação.',p:pEl},
+    {h:'7.3 Quadros Secundários',q:'Os quadros secundários apresentam anomalia?',d:'',p:pEl},
+    {h:'7.4 Instalações em Geral',q:'As instalações elétricas visíveis apresentam anomalia?',d:'Tomadas, interruptores, eletrodutos, pontos de luz.',p:pEl},
+  ]},
+  {id:'s9', label:'8. Incêndio', type:'sys', items:[
+    {h:'8.1 Extintores',q:'Os extintores estão em conformidade?',d:'Quantidade, tipo, posição e validade conforme projeto.',p:pI},
+    {h:'8.2 Hidrantes',q:'As caixas de hidrante estão em boas condições?',d:'Chave de aperto, esguicho, mangueira aduchada.',p:pI},
+    {h:'8.3 Saídas de Emergência',q:'As saídas de emergência atendem às normas?',d:'Largura ≥1,20 m. Portas no sentido da fuga.',p:['Saída obstruída','Largura insuficiente','Porta sentido errado','Rota não sinalizada']},
+    {h:'8.4 Iluminação de Emergência',q:'A iluminação de emergência está em conformidade?',d:'Blocos autônomos — disposição e funcionamento.',p:['Bloco inoperante','Cobertura insuficiente','Sem manutenção']},
+    {h:'8.5 Sinalização',q:'A sinalização de emergência está em conformidade?',d:'Rotas de fuga, extintores, saídas, ponto de encontro.',p:['Placa ausente','Placa ilegível','Posição inadequada']},
+  ]},
+  {id:'s10', label:'9. Equipamentos', type:'sys', items:[
+    {h:'9.1 Gerador / RTI',q:'O gerador ou RTI apresenta anomalia?',d:'',p:['Vazamento de combustível','Sem manutenção','Ruído / vibração anormal','Bateria descarregada']},
+    {h:'9.2 Elevador / Plataforma',q:'Elevador ou plataforma elevatória apresenta anomalia?',d:'Laudo de manutenção obrigatório.',p:['Sem laudo','Inoperante','Porta com defeito','Nivelamento incorreto']},
+    {h:'9.3 Ar-Condicionado',q:'O sistema de climatização apresenta anomalia?',d:'',p:['Inoperante','Filtro sujo','Gotejamento','Ruído anormal']},
+  ]},
+];
+
+var infraItems=['Medidor de água individual','Medidor de energia individual','Lâmpadas eficientes instaladas','Fechaduras em funcionamento','Lixeira e coleta seletiva','Sem interdição parcial ou total','Sem multas / pendências em órgãos públicos'];
+var entrevistaItems=['Trincas ou rachaduras em fachadas','Desprendimento de revestimento de fachada','Desprendimento de revestimento de teto','Trincas ou rachaduras em pisos','Desprendimento / afundamento de pisos','Esquadrias com defeito ou soltas','Curto-circuito ou sobrecarga elétrica','Problemas no sistema de água','Problemas no sistema de esgoto','Problemas no ar-condicionado','Infiltrações pelo telhado','Infiltrações pelas paredes','Ausência ou precariedade de limpeza','Reformas não autorizadas'];
+
+// ===== STATE =====
+var curTab=0;
+var state={};
+
+// ===== BUILD UI =====
+function buildUI(){
+  var tabsEl=document.getElementById('mainTabs');
+  var secsEl=document.getElementById('sections');
+  SECTIONS.forEach(function(sec,i){
+    var t=document.createElement('button');
+    t.className='tab'+(i===0?' active':'');
+    t.textContent=sec.label;
+    t.onclick=function(){goTab(i)};
+    tabsEl.appendChild(t);
+    var s=document.createElement('div');
+    s.className='sec'+(i===0?' active':'');
+    s.id='sec_'+i;
+    if(sec.type==='ident') s.innerHTML=buildIdent();
+    else if(sec.type==='infra') s.innerHTML=buildInfra();
+    else if(sec.type==='entrev') s.innerHTML=buildEntrev();
+    else s.innerHTML=buildSys(sec,i);
+    secsEl.appendChild(s);
+  });
+  updateProgress();
+  document.addEventListener('change',updateProgress);
+  document.addEventListener('input',updateProgress);
+}
+
+function buildIdent(){
+  return '<div class="sec-title">Identificação da Vistoria</div>'
+    +'<div class="ident-grid">'
+    +'<div class="ifield full"><label>Escola / Edificação</label><input type="text" id="id_escola" placeholder="Nome da unidade escolar"></div>'
+    +'<div class="ifield full"><label>Endereço</label><input type="text" id="id_end" placeholder="Rua, número, bairro"></div>'
+    +'<div class="ifield"><label>Data da Vistoria</label><input type="date" id="id_data"></div>'
+    +'<div class="ifield"><label>Nº do Relatório</label><input type="text" id="id_rel" placeholder="Ex.: 001/2025"></div>'
+    +'<div class="ifield full"><label>Responsável Técnico (nome e CREA/CAU)</label><input type="text" id="id_tec" placeholder="Nome e registro"></div>'
+    +'<div class="ifield full"><label>Diretor(a) / Acompanhante</label><input type="text" id="id_dir" placeholder="Nome"></div>'
+    +'<div class="ifield full"><label>Observações Gerais</label><textarea id="id_obs" class="obs" rows="3" placeholder="Informações iniciais relevantes..."></textarea></div>'
+    +'</div>';
+}
+
+function buildInfra(){
+  var h='<div class="sec-title">Infraestrutura Básica</div>';
+  infraItems.forEach(function(lbl,i){
+    var n='inf_'+i;
+    h+='<div class="infra-item"><span class="infra-lbl">'+lbl+'</span>'
+      +'<div class="radio-row" style="margin:0">'
+      +rc(n,'ok','✓ Ok')+rc(n,'nao','✗ Problema')+rc(n,'na','N/A')
+      +'</div></div>';
+  });
+  h+='<textarea class="obs" id="inf_obs" placeholder="Observações gerais sobre infraestrutura..."></textarea>';
+  return h;
+}
+
+function buildEntrev(){
+  var h='<div class="sec-title">Entrevista Preliminar</div>'
+    +'<p style="font-size:12px;color:#666;margin-bottom:10px">Registre as anomalias relatadas pelos ocupantes <b>antes</b> da vistoria técnica.</p>'
+    +'<table class="etable"><thead><tr><th>Anomalia relatada</th><th>Presente?</th><th>Local / detalhe</th></tr></thead><tbody>';
+  entrevistaItems.forEach(function(txt,i){
+    h+='<tr><td>'+txt+'</td>'
+      +'<td><label class="cb-wrap"><input type="checkbox" id="ep_'+i+'"> Sim</label></td>'
+      +'<td><input class="loc-input" type="text" id="epl_'+i+'" placeholder="Local..."></td></tr>';
+  });
+  h+='</tbody></table>';
+  return h;
+}
+
+function buildSys(sec,secIdx){
+  var h='<div class="sec-title">'+sec.label.replace(/^\d+\.\s/,function(m){return m})+'</div>';
+  sec.items.forEach(function(item,si){
+    var nb='s'+secIdx+'_'+si;
+    var pathsHTML='';
+    if(item.p&&item.p.length){
+      pathsHTML='<div class="paths"><div class="paths-lbl">Patologias identificadas:</div><div class="path-grid">'
+        +item.p.map(function(p,pi){
+          var pid=nb+'_p'+pi;
+          return '<div class="pcb"><input type="checkbox" id="'+pid+'"><label for="'+pid+'">'+p+'</label></div>';
+        }).join('')
+        +'</div></div>';
+    }
+    h+='<div class="subsystem"><div class="sub-hdr">'+item.h+'</div><div class="item">'
+      +'<div class="item-q">'+item.q+'</div>'
+      +(item.d?'<div class="item-d">'+item.d+'</div>':'')
+      +'<div class="radio-row">'
+      +rc(nb,'ok','✓ Sem anomalia')+rc(nb,'nao','✗ Com anomalia')+rc(nb,'na','N/A')
+      +'<div class="sep-v"></div>'
+      +'<span class="glbl">Grau:</span>'
+      +rcg(nb+'g','g1','G1')+rcg(nb+'g','g2','G2')+rcg(nb+'g','g3','G3')
+      +'</div>'
+      +pathsHTML
+      +'<textarea class="obs" id="'+nb+'_obs" placeholder="Localização e observações..."></textarea>'
+      +'<div class="foto-wrap">'
+      +'<label class="btn-foto">📷 Adicionar Foto(s)'
+      +'<input type="file" accept="image/*" capture="environment" multiple onchange="handleFoto(this, \''+nb+'\')">'
+      +'</label>'
+      +'<div class="galeria" id="'+nb+'_galeria"></div>'
+      +'</div>'
+      +'</div></div>';
+  });
+  return h;
+}
+
+function rc(name,val,lbl){
+  var id=name+'_'+val;
+  return '<div class="rc"><input type="radio" name="'+name+'" id="'+id+'" value="'+val+'"><label for="'+id+'" class="'+val+'">'+lbl+'</label></div>';
+}
+function rcg(name,val,lbl){
+  var id=name+'_'+val;
+  return '<div class="rc"><input type="radio" name="'+name+'" id="'+id+'" value="'+val+'"><label for="'+id+'" class="'+val+'">'+lbl+'</label></div>';
+}
+
+// ===== LÓGICA DE FOTOS =====
+function handleFoto(input, id) {
+  var galeria = document.getElementById(id + '_galeria');
+  if(!input.files) return;
+  
+  Array.from(input.files).forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var MAX_DIM = 800; 
+        var w = img.width, h = img.height;
+        
+        if (w > h && w > MAX_DIM) { h *= MAX_DIM / w; w = MAX_DIM; } 
+        else if (h > MAX_DIM) { w *= MAX_DIM / h; h = MAX_DIM; }
+        
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        
+        var thumb = document.createElement('img');
+        thumb.src = dataUrl;
+        thumb.title = "Clique para remover esta foto";
+        thumb.onclick = function() { if(confirm('Deseja remover esta foto?')) this.remove(); };
+        galeria.appendChild(thumb);
+      }
+      img.src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  });
+  input.value = ''; 
+}
+
+// ===== NAV =====
+function goTab(i){
+  curTab=i;
+  document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('active',j===i)});
+  document.querySelectorAll('.sec').forEach(function(s,j){s.classList.toggle('active',j===i)});
+  document.getElementById('btnPrev').style.visibility=i===0?'hidden':'visible';
+  document.getElementById('btnNext').textContent=i===SECTIONS.length-1?'Finalizar':'Próximo →';
+  window.scrollTo(0,0);
+  var tabs=document.querySelectorAll('.tab');
+  if(tabs[i]) tabs[i].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function navigate(dir){
+  var next=curTab+dir;
+  if(next<0||next>=SECTIONS.length)return;
+  goTab(next);
+}
+
+// ===== PROGRESS =====
+function updateProgress(){
+  var radios=document.querySelectorAll('input[type=radio]');
+  var groups={};
+  radios.forEach(function(r){if(r.name)groups[r.name]=true});
+  var total=Object.keys(groups).length;
+  var filled=0;
+  Object.keys(groups).forEach(function(name){
+    if(document.querySelector('input[name="'+name+'"]:checked'))filled++;
+  });
+  var pct=total?Math.round(filled/total*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progTxt').textContent=pct+'%';
+}
+
+// ===== SAVE JSON =====
+function collectState(){
+  var data={};
+  document.querySelectorAll('input[type=text],input[type=date],textarea').forEach(function(el){
+    if(el.id) data[el.id]=el.value;
+  });
+  document.querySelectorAll('input[type=radio]:checked').forEach(function(r){
+    data['r_'+r.name]=r.value;
+  });
+  document.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    if(cb.id) data['c_'+cb.id]=cb.checked;
+  });
+  document.querySelectorAll('.galeria').forEach(function(gal){
+    var imgs = [];
+    gal.querySelectorAll('img').forEach(function(img){ imgs.push(img.src); });
+    if(imgs.length > 0) data['img_'+gal.id] = imgs;
+  });
+  return data;
+}
+
+function saveJSON(){
+  var data=collectState();
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var escola=document.getElementById('id_escola');
+  var nome=(escola&&escola.value?escola.value.replace(/\s+/g,'_'):'vistoria');
+  var dt=new Date().toISOString().slice(0,10);
+  a.href=url; a.download='vistoria_'+nome+'_'+dt+'.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Arquivo salvo!');
+}
+
+// ===== LOAD JSON =====
+function loadJSON(){
+  document.getElementById('loadInput').value='';
+  document.getElementById('loadInput').click();
+}
+
+function onFileLoad(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      applyState(data);
+      showToast('📂 Dados carregados!');
+      updateProgress();
+    }catch(err){showToast('⚠️ Arquivo inválido');}
+  };
+  reader.readAsText(file);
+}
+
+function applyState(data){
+  Object.keys(data).forEach(function(key){
+    var val=data[key];
+    if(key.startsWith('r_')){
+      var name=key.slice(2);
+      var el=document.querySelector('input[name="'+name+'"][value="'+val+'"]');
+      if(el)el.checked=true;
+    } else if(key.startsWith('c_')){
+      var id=key.slice(2);
+      var el=document.getElementById(id);
+      if(el&&el.type==='checkbox') el.checked=val;
+    } else if(key.startsWith('img_')){
+      var gal = document.getElementById(key.slice(4));
+      if(gal) {
+        gal.innerHTML = '';
+        val.forEach(function(src){
+          var img = document.createElement('img');
+          img.src = src;
+          img.onclick = function() { if(confirm('Deseja remover esta foto?')) this.remove(); };
+          gal.appendChild(img);
+        });
+      }
+    } else {
+      var el=document.getElementById(key);
+      if(el) el.value=val;
+    }
+  });
+}
+
+// ===== TOAST =====
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2200);
+}
+
+// ===== PWA SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+
+// ===== INIT =====
+buildUI();
+goTab(0);
+</script>
+</body>
+</html>
